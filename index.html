@@ -253,7 +253,7 @@
     .modal-overlay.active { display: flex; }
 
     .modal-box {
-      background: #ffffff; padding: 25px; border-radius: 12px; width: 420px; max-width: 90%;
+      background: #ffffff; padding: 25px; border-radius: 12px; width: 440px; max-width: 90%;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
     }
     .modal-title { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 15px; }
@@ -317,8 +317,20 @@
     .btn-auth-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
     .btn-auth-submit {
       flex: 1; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .btn-auth-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4); }
+    .btn-auth-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4); }
+    .btn-auth-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .btn-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
 
     .toast-notice {
       position: fixed;
@@ -635,13 +647,13 @@
       <span style="font-weight: 600; color: #1e40af;">🔑 Admin Mode Active</span>
       <div style="display:flex; gap:10px;">
         <button class="btn-primary" onclick="openFileLeaveModal()">+ File Leave</button>
-        <button class="btn-primary" style="background:#059669;" onclick="openServiceCreditModal()">+ Add Service Credits</button>
+        <button class="btn-primary" style="background:#059669;" onclick="openServiceCreditModal()">+ Add Credits (1.25 / SO)</button>
         <button class="btn-secondary" onclick="adminLogout()">Logout</button>
       </div>
     </div>
   </template>
 
-  <!-- Admin PIN Modal -->
+  <!-- Admin PIN Modal with Loading State -->
   <div id="adminModal" class="modal-overlay">
     <div class="admin-auth-card">
       <div class="admin-badge-icon">🔐</div>
@@ -649,24 +661,24 @@
       <p style="font-size:0.85rem; color:#94a3b8; margin:0 0 22px 0;">Enter security PIN to enable management privileges.</p>
       <input type="password" id="adminPinInput" maxlength="6" placeholder="••••" class="admin-pin-field" onkeyup="if(event.key==='Enter') submitAdminLogin()">
       <div style="display:flex; gap:12px;">
-        <button onclick="closeModal('adminModal')" class="btn-auth-cancel">Cancel</button>
-        <button onclick="submitAdminLogin()" class="btn-auth-submit">Login</button>
+        <button type="button" onclick="closeModal('adminModal')" class="btn-auth-cancel">Cancel</button>
+        <button type="button" id="btnAdminSubmit" onclick="submitAdminLogin()" class="btn-auth-submit">Login</button>
       </div>
     </div>
   </div>
 
-  <!-- File Leave / Service Credit Modal -->
+  <!-- File Leave / Service Credit Dynamic Form Modal -->
   <div class="modal-overlay" id="actionModal">
     <div class="modal-box">
       <h3 class="modal-title" id="actionModalTitle">File Leave Action</h3>
       <form id="entryForm" onsubmit="handleFormSubmit(event)">
         <div class="form-group">
           <label>Period</label>
-          <input type="text" id="entryPeriod" class="form-control" required placeholder="e.g. 10/14/2026 or 10/14/2026 - 10/16/2026">
+          <input type="text" id="entryPeriod" class="form-control" required placeholder="e.g. 10/01/2026 - 10/31/2026">
         </div>
 
         <div class="form-group">
-          <label>Particulars / Leave Type</label>
+          <label>Particulars</label>
           <input type="text" id="entryParticulars" class="form-control" required>
         </div>
 
@@ -677,17 +689,14 @@
         </div>
 
         <div class="form-group" id="groupTargetColumn">
-          <label>Column Category</label>
-          <select id="entryTargetColumn" class="form-control">
-            <option value="VL">Vacation Leave</option>
-            <option value="SL">Sick Leave</option>
-            <option value="CTO">COMPENSATORY TIME-OFF (COC)</option>
+          <label id="lblTargetColumn">Column Category</label>
+          <select id="entryTargetColumn" class="form-control" onchange="onTargetColumnChange()">
           </select>
         </div>
 
         <div class="form-group" id="groupCreditValue" style="display: none;">
-          <label>Service Credit Days / Value</label>
-          <input type="number" step="0.001" id="entryValue" class="form-control" value="1.000">
+          <label id="lblCreditValue">Credits Earned / Value</label>
+          <input type="number" step="0.001" id="entryValue" class="form-control" value="1.250">
         </div>
 
         <div id="groupLeaveDays">
@@ -742,9 +751,6 @@
     let leaveTypesList = [];
     let isServiceCreditMode = false;
 
-    /**
-     * Unified REST API client for Vercel
-     */
     async function apiRequest(action, params = {}, method = 'GET') {
       if (method === 'GET') {
         const query = new URLSearchParams({ action, ...params }).toString();
@@ -1287,7 +1293,7 @@
       }
     }
 
-    /* Admin Authentication */
+    /* Admin Authentication with Loading State */
     function handleAdminAuthClick() {
       if (isAdmin) {
         adminLogout();
@@ -1303,6 +1309,7 @@
 
     function submitAdminLogin() {
       const pinInput = document.getElementById('adminPinInput');
+      const submitBtn = document.getElementById('btnAdminSubmit');
       const pin = pinInput ? pinInput.value.trim() : '';
 
       if (!pin) {
@@ -1310,8 +1317,21 @@
         return;
       }
 
+      // Show verifying loading indicator
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="btn-spinner"></span> Verifying...';
+      }
+      if (pinInput) pinInput.disabled = true;
+
       apiRequest('verifyAdminPin', { pin })
         .then(isValid => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Login';
+          }
+          if (pinInput) pinInput.disabled = false;
+
           if (isValid) {
             isAdmin = true;
             closeModal('adminModal');
@@ -1338,6 +1358,11 @@
           }
         })
         .catch(err => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Login';
+          }
+          if (pinInput) pinInput.disabled = false;
           showToast('Verification error: ' + (err.message || err), 'error');
         });
     }
@@ -1365,6 +1390,21 @@
       }
     }
 
+    function onTargetColumnChange() {
+      if (isServiceCreditMode) {
+        const target = document.getElementById('entryTargetColumn').value;
+        const valueInput = document.getElementById('entryValue');
+        const particularsInput = document.getElementById('entryParticulars');
+
+        if (target === 'BOTH') {
+          valueInput.value = '1.250';
+          if (!particularsInput.value || particularsInput.value === 'SO #') {
+            particularsInput.value = 'Earned';
+          }
+        }
+      }
+    }
+
     function openFileLeaveModal() {
       if (!currentSelectedPersonnelId) return showToast('Please select a personnel member first!', 'error');
       
@@ -1382,8 +1422,17 @@
 
       document.getElementById('groupLeaveType').style.display = 'block';
       document.getElementById('groupTargetColumn').style.display = 'block';
+      document.getElementById('lblTargetColumn').innerText = 'Column Category';
       document.getElementById('groupLeaveDays').style.display = 'block';
       document.getElementById('groupCreditValue').style.display = 'none';
+
+      // Standard Column targets for filing leave
+      const targetSelect = document.getElementById('entryTargetColumn');
+      targetSelect.innerHTML = `
+        <option value="VL">Vacation Leave</option>
+        <option value="SL">Sick Leave</option>
+        <option value="CTO">COMPENSATORY TIME-OFF (COC)</option>
+      `;
 
       const types = (leaveTypesList && leaveTypesList.length > 0) 
         ? leaveTypesList 
@@ -1399,21 +1448,32 @@
       if (!currentSelectedPersonnelId) return showToast('Please select a personnel member first!', 'error');
 
       isServiceCreditMode = true;
-      document.getElementById('actionModalTitle').innerText = 'Add Service Credits (Special Order)';
+      document.getElementById('actionModalTitle').innerText = 'Add Credits / Monthly Earned Credits';
       document.getElementById('entryPeriod').value = '';
-      document.getElementById('entryValue').value = '1.000';
-      document.getElementById('entryRemarks').value = 'Service Credit';
+      document.getElementById('entryValue').value = '1.250';
+      document.getElementById('entryRemarks').value = '';
 
       const particularsInput = document.getElementById('entryParticulars');
       particularsInput.readOnly = false;
-      particularsInput.value = 'SO #';
+      particularsInput.value = 'Earned';
       particularsInput.style.backgroundColor = '#ffffff';
       particularsInput.style.cursor = 'text';
 
       document.getElementById('groupLeaveType').style.display = 'none';
       document.getElementById('groupTargetColumn').style.display = 'block';
+      document.getElementById('lblTargetColumn').innerText = 'Credit Category';
       document.getElementById('groupLeaveDays').style.display = 'none';
       document.getElementById('groupCreditValue').style.display = 'block';
+      document.getElementById('lblCreditValue').innerText = 'Earned Credits Value';
+
+      // Includes BOTH VL & SL (1.250 each) option
+      const targetSelect = document.getElementById('entryTargetColumn');
+      targetSelect.innerHTML = `
+        <option value="BOTH">✨ Both Vacation & Sick Leave (1.250 Each)</option>
+        <option value="VL">Vacation Leave (VL Only)</option>
+        <option value="SL">Sick Leave (SL Only)</option>
+        <option value="CTO">Compensatory Time-Off (COC / CTO)</option>
+      `;
 
       openModal('actionModal');
     }
@@ -1426,7 +1486,7 @@
         return;
       }
 
-      showLoading('Saving leave entry...');
+      showLoading('Saving entry...');
 
       const payload = {
         personnelId: currentSelectedPersonnelId,
