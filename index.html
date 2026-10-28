@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SSIS-LEAVE CARD</title>
+  <link rel="icon" type="image/png" href="https://lh3.googleusercontent.com/d/1ynTrF7FAY17SLIc-M6CRP2w35oShpg_g#.png">
+
+  <style>
+    :root {
+      --accent-blue: #3b82f6;
+      --bg-main: #f8fafc;
+      --card-bg: #ffffff;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --accent-emerald: #10b981;
+    }
+
+    body { 
+      margin: 0; 
+      padding-top: 80px; 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+      background-color: #f4f6f8; 
+      display: flex; 
+      overflow-x: hidden; 
+    }
+
+    /* Top Header */
+    .top-header { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 80px; 
+      background-color: #0f172a;
+      background-image: 
+        radial-gradient(circle at 80% -20%, rgba(59, 130, 246, 0.3) 0%, transparent 40%),
+        linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 3px solid var(--accent-blue); 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      padding: 0 30px; 
+      box-sizing: border-box; 
+      z-index: 1000; 
+    }
+    
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .menu-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #ffffff; }
+    .header-brand { display: flex; align-items: center; gap: 15px; }
+    .header-logo { 
+      height: 52px; 
+      width: 52px; 
+      object-fit: contain; 
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      flex-shrink: 0;
+    }
+    .header-school-name { font-size: 1.25rem; font-weight: 800; color: #ffffff; margin: 0; }
+    
+    .portal-logo-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: #ffffff;
+      padding: 1px;
+      flex-shrink: 0;
+    }
+
+    .header-contact-info { display: flex; flex-direction: column; gap: 2px; font-size: 0.78rem; color: #cbd5e1; text-align: right; }
+
+    /* Left Sidebar */
+    .sidebar { 
+      width: 280px; 
+      height: calc(100vh - 80px); 
+      position: fixed; 
+      left: 0; 
+      top: 80px; 
+      background-color: #1e293b; 
+      color: white; 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-between;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      z-index: 999; 
+      box-sizing: border-box;
+      padding-bottom: 20px;
+    }
+    .sidebar.hidden { transform: translateX(-100%); }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 998;
+    }
+    .sidebar-overlay.active { display: block; }
+
+    .sidebar-menu { flex: 1; overflow-y: auto; padding: 15px 0; }
+    .category-header { padding: 12px 20px 6px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 700; }
+    
+    .nav-group { margin-bottom: 5px; }
+    .sub-category-btn { 
+      width: 100%; text-align: left; background: none; border: none; padding: 10px 20px 10px 30px; 
+      color: #e2e8f0; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; 
+      justify-content: space-between; align-items: center; 
+    }
+    .sub-category-btn:hover { background-color: #334155; }
+    
+    .personnel-list { display: flex; flex-direction: column; background-color: #0f172a; }
+    .personnel-item { 
+      padding: 10px 20px 10px 45px; 
+      font-size: 0.85rem; 
+      color: #cbd5e1; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+      border-left: 3px solid transparent; 
+    }
+    .personnel-item:hover { background-color: #1e293b; color: #3b82f6; border-left-color: #3b82f6; }
+    .personnel-item.active { background-color: #1e293b; color: #60a5fa; border-left-color: #3b82f6; font-weight: 700; }
+
+    .sidebar-bottom { 
+      padding: 0 14px; 
+      width: 100%; 
+      box-sizing: border-box; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 10px; 
+    }
+
+    .nav-portal-sidebar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.07);
+      color: #93c5fd;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    .nav-portal-sidebar:hover {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: #3b82f6;
+      color: #ffffff;
+    }
+
+    .btn-admin-login {
+      width: 100%; 
+      padding: 12px; 
+      background-color: #2563eb; 
+      color: #ffffff; 
+      border: none; 
+      border-radius: 8px; 
+      font-weight: 700; 
+      font-size: 0.95rem; 
+      cursor: pointer; 
+      text-align: center; 
+      transition: background-color 0.2s ease, transform 0.1s ease; 
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+    .btn-admin-login:hover { background-color: #1d4ed8; }
+    .btn-admin-login.logged-in { background-color: #ef4444; }
+
+    /* Main Content */
+    .main-content { 
+      margin-left: 280px; 
+      width: calc(100% - 280px); 
+      padding: 25px; 
+      box-sizing: border-box; 
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      min-height: calc(100vh - 80px); 
+    }
+    .main-content.expanded { margin-left: 0; width: 100%; }
+
+    .card-container { background-color: #ffffff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+    .personnel-header { margin-bottom: 12px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    .personnel-header h2 { margin: 0; color: #0f172a; }
+    .personnel-header p { margin: 4px 0 0; color: #64748b; font-size: 0.9rem; }
+
+    /* Top-Middle Annual Leave Balances Styling */
+    .annual-summary-section {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+    .annual-summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px dashed #cbd5e1;
+      padding-bottom: 6px;
+    }
+    .annual-summary-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .annual-summary-cards {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .annual-stat-card {
+      flex: 1;
+      min-width: 170px;
+      max-width: 250px;
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+      border: 1px solid transparent;
+      transition: transform 0.15s ease;
+    }
+    .annual-stat-card:hover { transform: translateY(-2px); }
+    .stat-card-fl { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .stat-card-spl { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+    .stat-card-wl { background: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
+    
+    .stat-card-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .stat-card-balance {
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin: 4px 0;
+    }
+    .stat-card-sub {
+      font-size: 0.73rem;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    /* Table Styles */
+    .leave-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; font-family: 'Segoe UI', sans-serif; }
+    .leave-table th, .leave-table td { border: 1px solid #94a3b8; padding: 6px 8px; text-align: center; }
+    
+    .th-main { background-color: #1e293b; color: white; font-weight: 700; text-transform: uppercase; }
+    .th-vl { background-color: #dbeafe; color: #1e40af; font-weight: 700; }
+    .th-sl { background-color: #ffedd5; color: #9a3412; font-weight: 700; }
+    .th-cto { background-color: #dcfce7; color: #166534; font-weight: 700; }
+    
+    .leave-table tr:nth-child(even) { background-color: #f8fafc; }
+    .leave-table td.col-particulars { text-align: left; font-weight: 600; color: #334155; }
+    .leave-table td.col-balance { font-weight: 700; }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 2000;
+    }
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+      background: #ffffff; padding: 25px; border-radius: 12px; width: 440px; max-width: 90%;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+    }
+    .modal-title { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 15px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+    .form-control {
+      width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; font-size: 0.9rem;
+    }
+
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn-secondary { background: #94a3b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+    .admin-auth-card {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      color: #f8fafc;
+      padding: 35px 30px;
+      border-radius: 20px;
+      width: 360px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .admin-badge-icon {
+      width: 60px; height: 60px;
+      margin: 0 auto 15px;
+      border-radius: 18px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.2);
+    }
+    .admin-pin-field {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      text-align: center;
+      font-size: 1.3rem;
+      letter-spacing: 8px;
+      margin-bottom: 20px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #60a5fa;
+      font-weight: 700;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+    .admin-pin-field:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+      background: #0f172a;
+    }
+    .btn-auth-cancel {
+      flex: 1; padding: 12px; border: 1px solid #334155; border-radius: 10px; background: rgba(255,255,255,0.05); color: #94a3b8; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-auth-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .btn-auth-submit {
+      flex: 1; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-auth-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4); }
+    .btn-auth-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .btn-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Toast Notification */
+    .toast-notice {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 10000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+      border-left: 4px solid var(--accent-blue);
+    }
+    .toast-notice.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .toast-notice.error { border-left-color: #ef4444; }
+    .toast-notice.success { border-left-color: var(--accent-emerald); }
+
+    .admin-toolbar {
+      display: none; background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px 20px; border-radius: 8px;
+      margin-bottom: 20px; align-items: center; justify-content: space-between;
+    }
+    .admin-toolbar.active { display: flex; }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-top: 15px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .print-document-header { display: none; margin-bottom: 20px; }
+
+    /* Responsive Queries */
+    @media screen and (max-width: 768px) {
+      body { padding-top: 70px; }
+      .top-header { height: 70px; padding: 0 12px; }
+      .header-school-name { font-size: 1rem; line-height: 1.2; }
+      .header-logo { height: 38px; width: 38px; }
+      .header-contact-info { display: none; }
+
+      .sidebar {
+        top: 70px;
+        height: calc(100vh - 70px);
+        width: 270px;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+      }
+      .sidebar.active { transform: translateX(0); }
+
+      .main-content { margin-left: 0 !important; width: 100% !important; padding: 12px; }
+      .card-container { padding: 15px; }
+      .personnel-header h2 { font-size: 1.25rem; }
+      .personnel-header p { font-size: 0.8rem; }
+
+      .admin-toolbar { flex-direction: column; gap: 10px; align-items: stretch; }
+      .admin-toolbar div { display: flex; flex-direction: column; gap: 8px; }
+
+      .leave-table th, .leave-table td { padding: 5px 6px; font-size: 0.75rem; white-space: nowrap; }
+      .annual-summary-cards { flex-direction: column; }
+      .annual-stat-card { max-width: 100%; }
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(5px); display: none;
+      flex-direction: column; align-items: center; justify-content: center; z-index: 3000;
+      color: #ffffff; text-align: center;
+    }
+    .loading-overlay.active { display: flex; }
+
+    .loading-emoji { font-size: 3.5rem; margin-bottom: 15px; }
+    .loading-spinner {
+      width: 45px; height: 45px; border: 4px solid rgba(255, 255, 255, 0.15);
+      border-left-color: #3b82f6; border-radius: 50%; animation: spin 0.9s linear infinite; margin-bottom: 18px;
+    }
+    .loading-text { font-size: 1.15rem; font-weight: 600; color: #f8fafc; letter-spacing: 0.5px; max-width: 85%; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .action-bar { display: flex; justify-content: flex-end; margin-bottom: 15px; }
+    .btn-print {
+      background-color: #0284c7; color: #ffffff; border: none; padding: 8px 18px;
+      border-radius: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: background-color 0.2s ease;
+    }
+    .btn-print:hover { background-color: #0369a1; }
+
+    /* Print Styles */
+    @media print {
+      @page { size: A4 landscape; margin: 8mm; }
+      body { padding-top: 0 !important; background: white !important; font-size: 9.5pt; }
+      .print-document-header { display: block !important; }
+      .top-header, .sidebar, .sidebar-overlay, .menu-btn, .action-bar, .card-view-tabs, .admin-toolbar, .loading-overlay, #btnBackToTop, #welcomePlaceholder, #historyToggleBar, .toast-notice, .modal-overlay, .no-print { 
+        display: none !important; 
+      }
+      .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+      .card-container { border: none !important; box-shadow: none !important; padding: 0 !important; background: transparent !important; }
+      .personnel-header { border-bottom: 1.5px solid #000000; padding-bottom: 6px; margin-bottom: 8px; }
+      .personnel-header h2 { color: #000000 !important; font-size: 1.3rem; }
+      
+      .annual-summary-section {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        padding: 8px 12px !important;
+        margin-bottom: 10px !important;
+        box-shadow: none !important;
+      }
+      .annual-summary-title { color: #000000 !important; }
+      .annual-stat-card {
+        border: 1px solid #000000 !important;
+        background: transparent !important;
+        color: #000000 !important;
+        padding: 4px 8px !important;
+        box-shadow: none !important;
+      }
+      .stat-card-balance { font-size: 1.2rem !important; }
+
+      .table-responsive { overflow: visible !important; border: none !important; margin-top: 10px !important; }
+      .leave-table { width: 100% !important; border-collapse: collapse !important; font-size: 8pt !important; }
+      .leave-table th, .leave-table td { border: 1px solid #000000 !important; padding: 4px 5px !important; color: #000000 !important; }
+      .th-main { background-color: #1e293b !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .th-vl, .th-sl, .th-cto { background-color: #f1f5f9 !important; color: #000000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .signatories-section { page-break-inside: avoid; margin-top: 35px !important; padding: 0 !important; }
+    }
+
+    .signatories-section { display: flex; justify-content: space-between; margin-top: 40px; padding: 0 20px; }
+    .signatory-box { width: 35%; text-align: center; }
+    .sig-label { text-align: left; font-weight: 600; font-size: 0.85rem; margin-bottom: 40px; color: #334155; }
+    .sig-name { font-weight: 700; font-size: 0.95rem; text-decoration: underline; text-transform: uppercase; margin: 0; color: #0f172a; }
+    .sig-title { font-size: 0.8rem; color: #475569; margin-top: 2px; }
+
+    #btnBackToTop {
+      display: none; position: fixed; bottom: 25px; right: 25px; z-index: 999;
+      border: none; outline: none; background-color: #0d6efd; color: white;
+      cursor: pointer; padding: 10px 16px; border-radius: 50px; font-size: 13px;
+      font-weight: 600; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-view-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .btn-tab { padding: 8px 18px; border: 1px solid #cbd5e1; background-color: #f8fafc; color: #475569; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; }
+    .btn-tab:hover { background-color: #e2e8f0; }
+    .btn-tab.active-tab { background-color: #1e293b; color: #ffffff; border-color: #1e293b; }
+
+    .welcome-placeholder { text-align: center; padding: 80px 20px; color: #64748b; background-color: #ffffff; border-radius: 8px; }
+    .welcome-placeholder .welcome-icon { font-size: 3.5rem; margin-bottom: 15px; }
+    .welcome-placeholder h3 { font-size: 1.4rem; color: #1e293b; margin: 0 0 8px 0; font-weight: 700; }
+    .welcome-placeholder p { font-size: 0.95rem; max-width: 440px; margin: 0 auto; line-height: 1.5; color: #64748b; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-btn" onclick="toggleSidebar()" title="Toggle Menu">☰</button>
+      <div class="header-brand">
+        <img id="headerLogo" class="header-logo" alt="School Logo" style="display: none;" />
+        <h1 class="header-school-name" id="headerSchoolName">SAN SIMON INTEGRATED SCHOOL</h1>
+      </div>
+    </div>
+    <div class="header-contact-info" id="headerContactInfo"></div>
+  </header>
+
+  <!-- Mobile Sidebar Backdrop Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarMobile()"></div>
+
+  <!-- Left Sidebar Navigation -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-menu">
+      <div class="category-header">Non-Teaching Personnel</div>
+      <div class="personnel-list" id="nonTeachingList"></div>
+
+      <div class="category-header" style="margin-top:15px;">Teaching Personnel</div>
+      <div class="nav-group">
+        <button class="sub-category-btn" onclick="toggleGroup('elemList')">
+          <span>Elementary School</span> ▾
+        </button>
+        <div class="personnel-list" id="elemList"></div>
+      </div>
+
+      <div class="nav-group">
+        <button class="sub-category-btn" onclick="toggleGroup('jhsList')">
+          <span>Junior High School</span> ▾
+        </button>
+        <div class="personnel-list" id="jhsList"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <a href="https://ssis500470.vercel.app/" target="_top" class="nav-portal-sidebar" title="Return to Main SSIS Portal">
+        <img src="https://drive.google.com/thumbnail?id=1uPUqWamy09SGTwc3QsvC59JuClwL51Dx&sz=w200" class="portal-logo-icon" referrerpolicy="no-referrer" alt="School Logo">
+        <span>Back to SSIS Portal</span>
+        <span style="font-size:0.75rem;">↗</span>
+      </a>
+      <button id="adminAuthBtn" class="btn-admin-login" onclick="handleAdminAuthClick()">
+        Admin Login
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Viewport Area -->
+  <main class="main-content" id="mainContent">
+    <div class="card-container">
+
+      <div id="welcomePlaceholder" class="welcome-placeholder">
+        <div class="welcome-icon">👈</div>
+        <h3>Select a Staff Member</h3>
+        <p>Choose a non-teaching or teaching personnel from the left navigation drawer to view their School Leave Card.</p>
+      </div>
+
+      <div id="personnelCardContent" style="display: none;">
+        <div class="print-document-header">
+          <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #0f172a; padding-bottom:15px; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap:15px;">
+              <img id="printLogo" src="" style="height:65px; width:65px; object-fit:contain; display:none;" referrerpolicy="no-referrer">
+              <div>
+                <h2 id="printSchoolName" style="margin:0; font-size:1.35rem; font-weight:800; color:#0f172a; text-transform:uppercase;">SAN SIMON INTEGRATED SCHOOL</h2>
+                <p id="printAddress" style="margin:3px 0 0 0; font-size:0.82rem; color:#475569;"></p>
+                <p id="printContact" style="margin:2px 0 0 0; font-size:0.82rem; color:#475569;"></p>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <h3 style="margin:0; font-size:1.05rem; text-transform:uppercase; color:#0f172a;">REPORT ON PERSONNEL LEAVE CREDITS</h3>
+              <p style="margin:4px 0 0 0; font-size:0.85rem; font-weight:700; color:var(--accent-blue);">CSC Form 6 Balance Ledger</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-bar no-print">
+          <button class="btn-print" onclick="printLeaveCard()">🖨️ Print / Save as PDF</button>
+        </div>
+
+        <div class="card-view-tabs no-print">
+          <button id="btnViewVLSL" class="btn-tab active-tab" onclick="switchCardView('VL_SL')">
+            📋 Vacation & Sick Leave Card
+          </button>
+          <button id="btnViewCOC" class="btn-tab" onclick="switchCardView('COC')">
+            ⏳ COC / CTO Card
+          </button>
+        </div>
+
+        <div class="personnel-header">
+          <h2 id="dispName">Select Personnel</h2>
+          <p id="dispDetails">Choose a staff member from the left navigation drawer.</p>
+        </div>
+
+        <!-- TOP-MIDDLE: ANNUAL MANDATORY / SPECIAL LEAVE BALANCES -->
+        <div id="annualLeaveSummaryBar" class="annual-summary-section" style="display: none;">
+          <div class="annual-summary-header">
+            <span class="annual-summary-title">
+              <span>📅</span> Annual Leave Entitlements
+            </span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label for="annualYearSelect" style="font-size:0.78rem; font-weight:600; color:#64748b;">Calendar Year:</label>
+              <select id="annualYearSelect" onchange="onYearSelectionChange()" style="padding:3px 8px; font-size:0.8rem; font-weight:700; border:1px solid #cbd5e1; border-radius:6px; background:#fff; color:#1e293b; cursor:pointer;">
+              </select>
+            </div>
+          </div>
+
+          <div class="annual-summary-cards" id="annualStatCardsContainer">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div id="historyToggleBar" style="display: none; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #f8f9fa; padding: 10px 16px; border-radius: 6px; border: 1px solid #dee2e6;">
+          <span id="historyInfoText" style="font-size: 13px; color: #495057; font-weight: 600;"></span>
+          <button id="btnToggleHistory" type="button" onclick="toggleLedgerHistory()" style="font-size: 12px; padding: 6px 12px; cursor: pointer; background-color: #0d6efd; color: white; border: none; border-radius: 4px; font-weight: 500;">
+            📜 View Full History
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="leave-table">
+            <thead id="leaveTableHead"></thead>
+            <tbody id="leaveTableBody">
+              <tr>
+                <td colspan="12" style="padding: 30px; color: #94a3b8;">No personnel selected.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="signatories-section">
+          <div class="signatory-box">
+            <p class="sig-label">Prepared by:</p>
+            <p class="sig-name">ERNAN P. RAMOS</p>
+            <p class="sig-title">Administrative Officer II</p>
+          </div>
+          <div class="signatory-box">
+            <p class="sig-label">Certified Correct by:</p>
+            <p class="sig-name">LEILANI B. APOLINAR, PhD.</p>
+            <p class="sig-title">Principal III</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Admin Control Bar Template -->
+  <template id="adminToolbarTemplate">
+    <div class="admin-toolbar" id="adminToolbar">
+      <span style="font-weight: 600; color: #1e40af;">🔑 Admin Mode Active</span>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn-primary" onclick="openFileLeaveModal()">+ File Leave</button>
+        <button class="btn-primary" style="background:#059669;" onclick="openServiceCreditModal()">+ Add Credits (1.25 / SO)</button>
+        <button class="btn-secondary" onclick="adminLogout()">Logout</button>
+      </div>
+    </div>
+  </template>
+
+  <!-- Admin PIN Modal with Loading State -->
+  <div id="adminModal" class="modal-overlay">
+    <div class="admin-auth-card">
+      <div class="admin-badge-icon">🔐</div>
+      <h3 style="margin:0 0 6px 0; font-size:1.3rem; font-weight:800; color:#ffffff;">Admin Authentication</h3>
+      <p style="font-size:0.85rem; color:#94a3b8; margin:0 0 22px 0;">Enter security PIN to enable management privileges.</p>
+      <input type="password" id="adminPinInput" maxlength="20" placeholder="••••••••" class="admin-pin-field" onkeyup="if(event.key==='Enter') submitAdminLogin()">
+      <div style="display:flex; gap:12px;">
+        <button type="button" onclick="closeModal('adminModal')" class="btn-auth-cancel">Cancel</button>
+        <button type="button" id="btnAdminSubmit" onclick="submitAdminLogin()" class="btn-auth-submit">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Leave / Service Credit Dynamic Form Modal -->
+  <div class="modal-overlay" id="actionModal">
+    <div class="modal-box">
+      <h3 class="modal-title" id="actionModalTitle">File Leave Action</h3>
+      <form id="entryForm" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+          <label>Period</label>
+          <input type="text" id="entryPeriod" class="form-control" required placeholder="e.g. 10/01/2026 - 10/31/2026">
+        </div>
+
+        <div class="form-group">
+          <label>Particulars</label>
+          <input type="text" id="entryParticulars" class="form-control" required>
+        </div>
+
+        <div class="form-group" id="groupLeaveType">
+          <label>Leave Type</label>
+          <select id="entryLeaveType" class="form-control" onchange="updateParticularsFromLeaveType()">
+          </select>
+        </div>
+
+        <div class="form-group" id="groupTargetColumn">
+          <label id="lblTargetColumn">Column Category</label>
+          <select id="entryTargetColumn" class="form-control" onchange="onTargetColumnChange()">
+          </select>
+        </div>
+
+        <div class="form-group" id="groupCreditValue" style="display: none;">
+          <label id="lblCreditValue">Credits Earned / Value</label>
+          <input type="number" step="0.001" id="entryValue" class="form-control" value="1.250">
+        </div>
+
+        <div id="groupLeaveDays">
+          <div class="form-group">
+            <label>Days With Pay (W/ Pay)</label>
+            <input type="number" step="0.001" id="entryDaysPay" class="form-control" value="1.000">
+          </div>
+          <div class="form-group">
+            <label>Days Without Pay (W/OUT Pay)</label>
+            <input type="number" step="0.001" id="entryDaysNoPay" class="form-control" value="0.000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Remarks</label>
+          <input type="text" id="entryRemarks" class="form-control" placeholder="e.g. 10/02/2026 or text">
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('actionModal')">Cancel</button>
+          <button type="submit" class="btn-primary">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-emoji" id="loadingEmoji">📋</div>
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">Loading...</div>
+  </div>
+
+  <!-- Back to Top Button -->
+  <button id="btnBackToTop" onclick="scrollToTop()" title="Go to top">⬆️ Top</button>
+
+  <!-- Toast Notification -->
+  <div id="toastNotice" class="toast-notice"></div>
+
+  <script>
+    // GOOGLE APPS SCRIPT WEB APP BACKEND URL
+    const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyuigY3QbA27PaYTmOJlPY88X3S6juLFqfCt7tj9ZEK5csJ9oOuyWjkDHdX2pBsJMr_Yg/exec';
+
+    let allLeaveCardsCache = {};
+    let globalLedgerRecords = [];
+    let currentPersonnelCategory = '';
+    let isShowingFullHistory = false;
+    let currentCardView = 'VL_SL';
+    const DEFAULT_VISIBLE_ROWS = 10;
+    let currentSelectedPersonnelId = null;
+    let isAdmin = false;
+    let leaveTypesList = [];
+    let isServiceCreditMode = false;
+
+    /**
+     * Unified API Request Handler
+     * Communicates directly with Google Apps Script Web App
+     */
+    async function apiRequest(action, params = {}, method = 'GET') {
+      if (method === 'GET') {
+        const query = new URLSearchParams({ action, ...params }).toString();
+        const res = await fetch(`${API_ENDPOINT}?${query}`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        return await res.json();
+      } else {
+        const res = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action, payload: params }),
+          redirect: 'follow'
+        });
+        return await res.json();
+      }
+    }
+
+    async function initPortal() {
+      try {
+        apiRequest('getHeaderDetails')
+          .then(renderHeader)
+          .catch(err => console.error('Header err:', err));
+
+        apiRequest('getLeaveTypes')
+          .then(types => { leaveTypesList = types; })
+          .catch(err => console.error('Leave types err:', err));
+
+        const dirData = await apiRequest('getPortalDirectory');
+        renderSidebar(dirData);
+        preloadAllLeaveCards();
+      } catch (err) {
+        console.error('Directory load error:', err);
+        showToast('Failed to load personnel list. Please refresh.', 'error');
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPortal);
+    } else {
+      initPortal();
+    }
+
+    function preloadAllLeaveCards() {
+      apiRequest('getAllPersonnelLeaveCards')
+        .then(cards => {
+          if (cards && typeof cards === 'object') {
+            allLeaveCardsCache = cards;
+          }
+        })
+        .catch(err => console.error('Preload cache error:', err));
+    }
+
+    let toastTimer;
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById("toastNotice");
+      if (!toast) return;
+      
+      clearTimeout(toastTimer);
+      toast.innerText = message;
+      toast.className = `toast-notice ${type} show`;
+      
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    }
+
+    function renderHeader(data) {
+      if (!data) return;
+      if (data['School Name']) {
+        document.getElementById('headerSchoolName').innerText = data['School Name'];
+        document.getElementById('printSchoolName').innerText = data['School Name'];
+      }
+      if (data['Logo Direct URL']) {
+        const logoImg = document.getElementById('headerLogo');
+        logoImg.src = data['Logo Direct URL'];
+        logoImg.style.display = 'block';
+
+        const printLogo = document.getElementById('printLogo');
+        printLogo.src = data['Logo Direct URL'];
+        printLogo.style.display = 'block';
+      }
+
+      const infoContainer = document.getElementById('headerContactInfo');
+      let infoHtml = '';
+      if (data['Address']) {
+        infoHtml += `<span>📍 ${escapeHtml(data['Address'])}</span>`;
+        document.getElementById('printAddress').innerText = data['Address'];
+      }
+      if (data['Contact']) infoHtml += `<span>📞 ${escapeHtml(data['Contact'])}</span>`;
+      if (data['Email']) infoHtml += `<span>✉️ ${escapeHtml(data['Email'])}</span>`;
+      
+      const printContactText = `${data['Contact'] || ''} ${data['Email'] ? '| ' + data['Email'] : ''}`.trim();
+      document.getElementById('printContact').innerText = printContactText;
+
+      infoContainer.innerHTML = infoHtml;
+    }
+
+    function renderSidebar(data) {
+      if (!data) return;
+
+      const ntList = data.nonTeaching || [];
+      const elemList = (data.teaching && data.teaching.elementary) || [];
+      const jhsList = (data.teaching && data.teaching.jhs) || [];
+
+      const ntContainer = document.getElementById('nonTeachingList');
+      if (ntContainer) {
+        ntContainer.innerHTML = ntList.map(item => 
+          `<div class="personnel-item" data-id="${encodeURIComponent(item.id)}" onclick="handlePersonnelClick(this)">${escapeHtml(item.name)}</div>`
+        ).join('');
+      }
+
+      const elemContainer = document.getElementById('elemList');
+      if (elemContainer) {
+        elemContainer.innerHTML = elemList.map(item => 
+          `<div class="personnel-item" data-id="${encodeURIComponent(item.id)}" onclick="handlePersonnelClick(this)">${escapeHtml(item.name)}</div>`
+        ).join('');
+      }
+
+      const jhsContainer = document.getElementById('jhsList');
+      if (jhsContainer) {
+        jhsContainer.innerHTML = jhsList.map(item => 
+          `<div class="personnel-item" data-id="${encodeURIComponent(item.id)}" onclick="handlePersonnelClick(this)">${escapeHtml(item.name)}</div>`
+        ).join('');
+      }
+    }
+
+    function handlePersonnelClick(el) {
+      document.querySelectorAll('.personnel-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+
+      const id = decodeURIComponent(el.getAttribute('data-id'));
+      selectPersonnel(id);
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatRemarksForDisplay(val) {
+      if (val === null || val === undefined || val === '') return '';
+      let str = String(val).trim();
+      if (str.indexOf("'") === 0) {
+        str = str.substring(1).trim();
+      }
+      if (/^[A-Za-z]{3}\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4}\s+\d{2}:\d{2}:\d{2}/.test(str)) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${mm}/${dd}/${yyyy}`;
+        }
+      }
+      return escapeHtml(str);
+    }
+
+    function selectPersonnel(id) {
+      currentSelectedPersonnelId = id;
+
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const mainContent = document.getElementById('mainContent');
+
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('active');
+        if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+      } else {
+        sidebar.classList.add('hidden');
+        mainContent.classList.add('expanded');
+      }
+
+      if (allLeaveCardsCache && allLeaveCardsCache[id]) {
+        renderLeaveCard(allLeaveCardsCache[id]);
+        return;
+      }
+
+      showLoading('Loading leave records...');
+      apiRequest('getPersonnelLeaveCard', { personnelId: id })
+        .then(data => {
+          if (data) {
+            allLeaveCardsCache[id] = data;
+            renderLeaveCard(data);
+          }
+          hideLoading();
+        })
+        .catch(err => {
+          hideLoading();
+          showToast('Failed to load leave records: ' + (err && err.message ? err.message : ''), 'error');
+        });
+    }
+
+    function renderLeaveCard(data) {
+      const welcomePlaceholder = document.getElementById('welcomePlaceholder');
+      const cardContent = document.getElementById('personnelCardContent');
+
+      if (welcomePlaceholder) welcomePlaceholder.style.display = 'none';
+      if (cardContent) cardContent.style.display = 'block';
+
+      document.getElementById('dispName').innerText = data.name || '';
+      document.getElementById('dispDetails').innerText = `${data.designation || ''} | ${data.station || ''}`;
+
+      globalLedgerRecords = data.records || [];
+      currentPersonnelCategory = data.category || '';
+      isShowingFullHistory = false;
+
+      populateAnnualYearSelector();
+      renderAnnualLeaveBalances();
+
+      renderTableHeader();
+      displayLedgerRows();
+    }
+
+    function extractYearFromRecord(r) {
+      if (!r) return null;
+
+      const period = String(r.period || '').trim();
+      if (period) {
+        const p4 = period.match(/\b(19\d\d|20\d\d)\b/);
+        if (p4) return p4[1];
+
+        const p2 = period.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-](\d{2})\b/);
+        if (p2) {
+          const yr = parseInt(p2[1], 10);
+          return String(yr >= 50 ? 1900 + yr : 2000 + yr);
+        }
+      }
+
+      const allRemarks = `${(r.vl && r.vl.remarks) || ''} ${(r.sl && r.sl.remarks) || ''} ${(r.cto && r.cto.remarks) || ''}`.trim();
+      if (allRemarks) {
+        const r4 = allRemarks.match(/\b(19\d\d|20\d\d)\b/);
+        if (r4) return r4[1];
+
+        const r2 = allRemarks.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-](\d{2})\b/);
+        if (r2) {
+          const yr = parseInt(r2[1], 10);
+          return String(yr >= 50 ? 1900 + yr : 2000 + yr);
+        }
+
+        const rSlash = allRemarks.match(/[\/\-](\d{4})\b/);
+        if (rSlash) return rSlash[1];
+      }
+
+      const part = String(r.particulars || '').trim();
+      if (part) {
+        const part4 = part.match(/\b(19\d\d|20\d\d)\b/);
+        if (part4) return part4[1];
+      }
+
+      return null;
+    }
+
+    function populateAnnualYearSelector() {
+      const select = document.getElementById('annualYearSelect');
+      if (!select) return;
+
+      const currentYear = new Date().getFullYear();
+      const yearsSet = new Set([currentYear]);
+
+      (globalLedgerRecords || []).forEach(r => {
+        if (!r) return;
+        const y = extractYearFromRecord(r);
+        if (y && parseInt(y) >= 1990 && parseInt(y) <= 2050) {
+          yearsSet.add(parseInt(y));
+        }
+      });
+
+      const sortedYears = Array.from(yearsSet).sort((a, b) => b - a);
+      const existingVal = select.value ? parseInt(select.value) : currentYear;
+
+      select.innerHTML = sortedYears.map(y => `<option value="${y}" ${y === existingVal ? 'selected' : ''}>CY ${y}</option>`).join('');
+    }
+
+    function onYearSelectionChange() {
+      renderAnnualLeaveBalances();
+    }
+
+    function renderAnnualLeaveBalances() {
+      const container = document.getElementById('annualStatCardsContainer');
+      const bar = document.getElementById('annualLeaveSummaryBar');
+      const yearSelect = document.getElementById('annualYearSelect');
+
+      if (!container || !bar) return;
+
+      const selectedYear = yearSelect && yearSelect.value ? String(yearSelect.value) : String(new Date().getFullYear());
+      
+      const catLower = String(currentPersonnelCategory || '').toLowerCase();
+      const isNonTeaching = catLower.indexOf('non') !== -1 || document.getElementById('dispDetails').innerText.toLowerCase().indexOf('non-teaching') !== -1;
+
+      let usedFL = 0;
+      let usedSPL = 0;
+      let usedWL = 0;
+
+      (globalLedgerRecords || []).forEach(r => {
+        if (!r) return;
+
+        const part = String(r.particulars || '').toLowerCase().trim();
+
+        if (part.indexOf('disapproved') !== -1 || part.indexOf('disapprove') !== -1 || part.indexOf('cancelled') !== -1 || part.indexOf('cancel') !== -1) {
+          return;
+        }
+
+        const recYear = extractYearFromRecord(r);
+        if (!recYear || recYear !== selectedYear) {
+          return;
+        }
+
+        const daysTaken = (parseFloat(r.vl && r.vl.absPay) || 0) + 
+                          (parseFloat(r.sl && r.sl.absPay) || 0) + 
+                          (parseFloat(r.cto && r.cto.absPay) || 0) +
+                          (parseFloat(r.vl && r.vl.absNoPay) || 0) +
+                          (parseFloat(r.sl && r.sl.absNoPay) || 0);
+
+        if (part.indexOf('forced') !== -1 || part.indexOf('mandatory') !== -1 || part === 'fl' || part === 'f.l.') {
+          usedFL += daysTaken;
+        } else if (part.indexOf('privilege') !== -1 || part === 'spl' || part === 's.p.l.') {
+          usedSPL += daysTaken;
+        } else if (part.indexOf('wellness') !== -1 || part === 'wl' || part === 'w.l.') {
+          usedWL += daysTaken;
+        }
+      });
+
+      const quotaFL = 5.000;
+      const quotaSPL = 3.000;
+      const quotaWL = 5.000;
+
+      const balFL = Math.max(0, quotaFL - usedFL);
+      const balSPL = Math.max(0, quotaSPL - usedSPL);
+      const balWL = Math.max(0, quotaWL - usedWL);
+
+      let cardsHtml = '';
+
+      if (isNonTeaching) {
+        cardsHtml = `
+          <div class="annual-stat-card stat-card-fl">
+            <div class="stat-card-label">
+              <span>🌿 Forced Leave</span>
+              <span style="font-size:0.7rem; opacity:0.8;">5d/yr</span>
+            </div>
+            <div class="stat-card-balance">${balFL.toFixed(3)}</div>
+            <div class="stat-card-sub">Used: <b>${usedFL.toFixed(3)}</b> | Quota: 5.000</div>
+          </div>
+
+          <div class="annual-stat-card stat-card-spl">
+            <div class="stat-card-label">
+              <span>⭐ Special Privilege</span>
+              <span style="font-size:0.7rem; opacity:0.8;">3d/yr</span>
+            </div>
+            <div class="stat-card-balance">${balSPL.toFixed(3)}</div>
+            <div class="stat-card-sub">Used: <b>${usedSPL.toFixed(3)}</b> | Quota: 3.000</div>
+          </div>
+
+          <div class="annual-stat-card stat-card-wl">
+            <div class="stat-card-label">
+              <span>🧘 Wellness Leave</span>
+              <span style="font-size:0.7rem; opacity:0.8;">5d/yr</span>
+            </div>
+            <div class="stat-card-balance">${balWL.toFixed(3)}</div>
+            <div class="stat-card-sub">Used: <b>${usedWL.toFixed(3)}</b> | Quota: 5.000</div>
+          </div>
+        `;
+      } else {
+        cardsHtml = `
+          <div class="annual-stat-card stat-card-wl" style="max-width: 320px;">
+            <div class="stat-card-label">
+              <span>🧘 Wellness Leave (Teaching)</span>
+              <span style="font-size:0.7rem; opacity:0.8;">5d/yr</span>
+            </div>
+            <div class="stat-card-balance">${balWL.toFixed(3)}</div>
+            <div class="stat-card-sub">Used: <b>${usedWL.toFixed(3)}</b> | Annual Quota: 5.000 days</div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = cardsHtml;
+      bar.style.display = 'block';
+    }
+
+    function switchCardView(mode) {
+      currentCardView = mode;
+      isShowingFullHistory = false;
+
+      const btnVLSL = document.getElementById('btnViewVLSL');
+      const btnCOC = document.getElementById('btnViewCOC');
+
+      if (btnVLSL) btnVLSL.classList.toggle('active-tab', mode === 'VL_SL');
+      if (btnCOC) btnCOC.classList.toggle('active-tab', mode === 'COC');
+
+      renderTableHeader();
+      displayLedgerRows();
+    }
+
+    function renderTableHeader() {
+      const thead = document.getElementById('leaveTableHead');
+      if (!thead) return;
+
+      if (currentCardView === 'VL_SL') {
+        thead.innerHTML = `
+          <tr>
+            <th rowspan="2" class="th-main" style="width: 90px;">PERIOD</th>
+            <th rowspan="2" class="th-main">PARTICULARS</th>
+            <th colspan="5" class="th-vl">VACATION LEAVE</th>
+            <th colspan="5" class="th-sl">SICK LEAVE</th>
+          </tr>
+          <tr>
+            <th class="th-vl">EARNED</th>
+            <th class="th-vl">ABSENCE UNDERTIME W/ PAY</th>
+            <th class="th-vl">BALANCE</th>
+            <th class="th-vl">ABSENCE UNDERTIME W/OUT PAY</th>
+            <th class="th-vl">REMARKS</th>
+            <th class="th-sl">EARNED</th>
+            <th class="th-sl">ABSENCE UNDERTIME W/ PAY</th>
+            <th class="th-sl">BALANCE</th>
+            <th class="th-sl">ABSENCE UNDERTIME W/OUT PAY</th>
+            <th class="th-sl">REMARKS</th>
+          </tr>
+        `;
+      } else {
+        thead.innerHTML = `
+          <tr>
+            <th rowspan="2" class="th-main" style="width: 90px;">PERIOD</th>
+            <th rowspan="2" class="th-main">PARTICULARS</th>
+            <th colspan="5" class="th-cto">COMPENSATORY TIME-OFF (COC)</th>
+          </tr>
+          <tr>
+            <th class="th-cto">EARNED</th>
+            <th class="th-cto">ABSENCE UNDERTIME W/ PAY</th>
+            <th class="th-cto">BALANCE</th>
+            <th class="th-cto">ABSENCE UNDERTIME W/OUT PAY</th>
+            <th class="th-cto">REMARKS</th>
+          </tr>
+        `;
+      }
+    }
+
+    function displayLedgerRows() {
+      const tbody = document.getElementById('leaveTableBody');
+      const toggleBar = document.getElementById('historyToggleBar');
+      const infoText = document.getElementById('historyInfoText');
+      const toggleBtn = document.getElementById('btnToggleHistory');
+
+      if (!tbody) return;
+
+      let filteredRecords = [];
+
+      if (currentCardView === 'VL_SL') {
+        filteredRecords = globalLedgerRecords.filter(r => {
+          if (!r) return false;
+          const vlEarn = parseFloat(r.vl && r.vl.earned) || 0;
+          const vlPay = parseFloat(r.vl && r.vl.absPay) || 0;
+          const slEarn = parseFloat(r.sl && r.sl.earned) || 0;
+          const slPay = parseFloat(r.sl && r.sl.absPay) || 0;
+          const currentPart = String(r.particulars || '').toUpperCase();
+          const isBalFwd = currentPart.indexOf('BALANCE FORWARDED') !== -1;
+          const vlRemarks = String((r.vl && r.vl.remarks) || '').trim();
+          const slRemarks = String((r.sl && r.sl.remarks) || '').trim();
+          
+          return vlEarn > 0 || vlPay > 0 || slEarn > 0 || slPay > 0 || isBalFwd || vlRemarks !== '' || slRemarks !== '';
+        });
+      } else {
+        filteredRecords = globalLedgerRecords.filter(r => {
+          if (!r) return false;
+          const ctoEarn = parseFloat(r.cto && r.cto.earned) || 0;
+          const ctoPay = parseFloat(r.cto && r.cto.absPay) || 0;
+          const ctoNoPay = parseFloat(r.cto && r.cto.absNoPay) || 0;
+          const ctoBal = parseFloat(r.cto && r.cto.balance) || 0;
+          const currentPart = String(r.particulars || '').toUpperCase();
+          const isBalFwd = currentPart.indexOf('BALANCE FORWARDED') !== -1 && ctoBal > 0;
+          const ctoRemarks = String((r.cto && r.cto.remarks) || '').trim();
+
+          return ctoEarn > 0 || ctoPay > 0 || ctoNoPay > 0 || isBalFwd || ctoRemarks !== '';
+        });
+      }
+
+      const totalCols = currentCardView === 'VL_SL' ? 12 : 7;
+
+      if (!filteredRecords || filteredRecords.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${totalCols}" style="padding: 30px; color: #94a3b8; text-align: center;">No ${currentCardView === 'VL_SL' ? 'Vacation/Sick Leave' : 'COC'} records found.</td></tr>`;
+        if (toggleBar) toggleBar.style.display = 'none';
+        return;
+      }
+
+      const totalCount = filteredRecords.length;
+
+      if (toggleBar) {
+        toggleBar.style.display = totalCount <= DEFAULT_VISIBLE_ROWS ? 'none' : 'flex';
+      }
+
+      let visibleRecords = filteredRecords;
+      if (!isShowingFullHistory && totalCount > DEFAULT_VISIBLE_ROWS) {
+        visibleRecords = filteredRecords.slice(-DEFAULT_VISIBLE_ROWS);
+        if (infoText) infoText.innerText = `Showing latest ${DEFAULT_VISIBLE_ROWS} entries (Out of ${totalCount} total)`;
+        if (toggleBtn) toggleBtn.innerText = '📜 View Full History';
+      } else {
+        if (infoText) infoText.innerText = `Showing all ${totalCount} historical entries`;
+        if (toggleBtn) toggleBtn.innerText = '👁️ Show Recent Entries Only';
+      }
+
+      if (currentCardView === 'VL_SL') {
+        tbody.innerHTML = visibleRecords.map(r => `
+          <tr>
+            <td>${escapeHtml(r.period || '')}</td>
+            <td class="col-particulars">${escapeHtml(r.particulars || '')}</td>
+            <td>${r.vl ? r.vl.earned : ''}</td>
+            <td>${r.vl ? r.vl.absPay : ''}</td>
+            <td class="col-balance">${r.vl ? r.vl.balance : ''}</td>
+            <td>${r.vl ? r.vl.absNoPay : ''}</td>
+            <td>${r.vl ? formatRemarksForDisplay(r.vl.remarks) : ''}</td>
+            <td>${r.sl ? r.sl.earned : ''}</td>
+            <td>${r.sl ? r.sl.absPay : ''}</td>
+            <td class="col-balance">${r.sl ? r.sl.balance : ''}</td>
+            <td>${r.sl ? r.sl.absNoPay : ''}</td>
+            <td>${r.sl ? formatRemarksForDisplay(r.sl.remarks) : ''}</td>
+          </tr>
+        `).join('');
+      } else {
+        tbody.innerHTML = visibleRecords.map(r => `
+          <tr>
+            <td>${escapeHtml(r.period || '')}</td>
+            <td class="col-particulars">${escapeHtml(r.particulars || '')}</td>
+            <td>${r.cto ? r.cto.earned : ''}</td>
+            <td>${r.cto ? r.cto.absPay : ''}</td>
+            <td class="col-balance">${r.cto ? r.cto.balance : ''}</td>
+            <td>${r.cto ? r.cto.absNoPay : ''}</td>
+            <td>${r.cto ? formatRemarksForDisplay(r.cto.remarks) : ''}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const mainContent = document.getElementById('mainContent');
+
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('active');
+        if (sidebarOverlay) sidebarOverlay.classList.toggle('active', sidebar.classList.contains('active'));
+      } else {
+        sidebar.classList.toggle('hidden');
+        mainContent.classList.toggle('expanded');
+      }
+    }
+
+    function closeSidebarMobile() {
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      if (sidebar) sidebar.classList.remove('active');
+      if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+    }
+
+    function toggleGroup(containerId) {
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.style.display = (container.style.display === 'none' || container.style.display === '') ? 'flex' : 'none';
+      }
+    }
+
+    /* Admin Authentication */
+    function handleAdminAuthClick() {
+      if (isAdmin) {
+        adminLogout();
+      } else {
+        openModal('adminModal');
+        const pinInput = document.getElementById('adminPinInput');
+        if (pinInput) {
+          pinInput.value = '';
+          pinInput.focus();
+        }
+      }
+    }
+
+    function submitAdminLogin() {
+      const pinInput = document.getElementById('adminPinInput');
+      const submitBtn = document.getElementById('btnAdminSubmit');
+      const pin = pinInput ? pinInput.value.trim() : '';
+
+      if (!pin) {
+        showToast('Please enter security PIN', 'error');
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="btn-spinner"></span> Verifying...';
+      }
+      if (pinInput) pinInput.disabled = true;
+
+      apiRequest('verifyAdminPin', { pin })
+        .then(res => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Login';
+          }
+          if (pinInput) pinInput.disabled = false;
+
+          const isVerified = (res === true) || (res && res.verified === true);
+
+          if (isVerified) {
+            isAdmin = true;
+            closeModal('adminModal');
+            const btn = document.getElementById('adminAuthBtn');
+            if (btn) {
+              btn.innerText = 'Logout Admin';
+              btn.classList.add('logged-in');
+            }
+            showToast('Admin access granted!', 'success');
+            
+            if (!document.getElementById('adminToolbar')) {
+              const temp = document.getElementById('adminToolbarTemplate').content.cloneNode(true);
+              const container = document.querySelector('.card-container');
+              if (container) container.insertBefore(temp, container.firstChild);
+            }
+            const toolbar = document.getElementById('adminToolbar');
+            if (toolbar) toolbar.classList.add('active');
+          } else {
+            showToast('Incorrect PIN. Please try again.', 'error');
+            if (pinInput) {
+              pinInput.value = '';
+              pinInput.focus();
+            }
+          }
+        })
+        .catch(err => {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Login';
+          }
+          if (pinInput) pinInput.disabled = false;
+          showToast('Verification error: ' + (err.message || err), 'error');
+        });
+    }
+
+    function adminLogout() {
+      isAdmin = false;
+      const btn = document.getElementById('adminAuthBtn');
+      if (btn) {
+        btn.innerText = 'Admin Login';
+        btn.classList.remove('logged-in');
+      }
+      const toolbar = document.getElementById('adminToolbar');
+      if (toolbar) {
+        toolbar.classList.remove('active');
+      }
+      showToast('Logged out of Admin mode', 'info');
+    }
+
+    function updateParticularsFromLeaveType() {
+      if (!isServiceCreditMode) {
+        const select = document.getElementById('entryLeaveType');
+        if (select && select.value) {
+          document.getElementById('entryParticulars').value = select.value;
+        }
+      }
+    }
+
+    function onTargetColumnChange() {
+      if (isServiceCreditMode) {
+        const target = document.getElementById('entryTargetColumn').value;
+        const valueInput = document.getElementById('entryValue');
+        const particularsInput = document.getElementById('entryParticulars');
+
+        if (target === 'BOTH') {
+          valueInput.value = '1.250';
+          if (!particularsInput.value || particularsInput.value === 'SO #') {
+            particularsInput.value = 'Earned';
+          }
+        }
+      }
+    }
+
+    function openFileLeaveModal() {
+      if (!currentSelectedPersonnelId) return showToast('Please select a personnel member first!', 'error');
+      
+      isServiceCreditMode = false;
+      document.getElementById('actionModalTitle').innerText = 'File Leave Action';
+      document.getElementById('entryPeriod').value = '';
+      document.getElementById('entryDaysPay').value = '1.000';
+      document.getElementById('entryDaysNoPay').value = '0.000';
+      document.getElementById('entryRemarks').value = '';
+
+      const particularsInput = document.getElementById('entryParticulars');
+      particularsInput.readOnly = true;
+      particularsInput.style.backgroundColor = '#f1f3f4';
+      particularsInput.style.cursor = 'not-allowed';
+
+      document.getElementById('groupLeaveType').style.display = 'block';
+      document.getElementById('groupTargetColumn').style.display = 'block';
+      document.getElementById('lblTargetColumn').innerText = 'Column Category';
+      document.getElementById('groupLeaveDays').style.display = 'block';
+      document.getElementById('groupCreditValue').style.display = 'none';
+
+      const targetSelect = document.getElementById('entryTargetColumn');
+      targetSelect.innerHTML = `
+        <option value="VL">Vacation Leave</option>
+        <option value="SL">Sick Leave</option>
+        <option value="CTO">COMPENSATORY TIME-OFF (COC)</option>
+      `;
+
+      const types = (leaveTypesList && leaveTypesList.length > 0) 
+        ? leaveTypesList 
+        : ['Vacation Leave', 'Sick Leave'];
+      const select = document.getElementById('entryLeaveType');
+      select.innerHTML = types.map(t => `<option value="${t}">${t}</option>`).join('');
+      updateParticularsFromLeaveType();
+      
+      openModal('actionModal');
+    }
+
+    function openServiceCreditModal() {
+      if (!currentSelectedPersonnelId) return showToast('Please select a personnel member first!', 'error');
+
+      isServiceCreditMode = true;
+      document.getElementById('actionModalTitle').innerText = 'Add Credits / Monthly Earned Credits';
+      document.getElementById('entryPeriod').value = '';
+      document.getElementById('entryValue').value = '1.250';
+      document.getElementById('entryRemarks').value = '';
+
+      const particularsInput = document.getElementById('entryParticulars');
+      particularsInput.readOnly = false;
+      particularsInput.value = 'Earned';
+      particularsInput.style.backgroundColor = '#ffffff';
+      particularsInput.style.cursor = 'text';
+
+      document.getElementById('groupLeaveType').style.display = 'none';
+      document.getElementById('groupTargetColumn').style.display = 'block';
+      document.getElementById('lblTargetColumn').innerText = 'Credit Category';
+      document.getElementById('groupLeaveDays').style.display = 'none';
+      document.getElementById('groupCreditValue').style.display = 'block';
+      document.getElementById('lblCreditValue').innerText = 'Earned Credits Value';
+
+      const targetSelect = document.getElementById('entryTargetColumn');
+      targetSelect.innerHTML = `
+        <option value="BOTH">✨ Both Vacation & Sick Leave (1.250 Each)</option>
+        <option value="VL">Vacation Leave (VL Only)</option>
+        <option value="SL">Sick Leave (SL Only)</option>
+        <option value="CTO">Compensatory Time-Off (COC / CTO)</option>
+      `;
+
+      openModal('actionModal');
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      if (!currentSelectedPersonnelId) {
+        showToast('Please select a personnel member first!', 'error');
+        return;
+      }
+
+      showLoading('Saving entry...');
+
+      const payload = {
+        personnelId: currentSelectedPersonnelId,
+        isServiceCredit: isServiceCreditMode,
+        period: document.getElementById('entryPeriod').value,
+        particulars: document.getElementById('entryParticulars').value,
+        leaveType: isServiceCreditMode ? '' : document.getElementById('entryLeaveType').value,
+        targetColumn: document.getElementById('entryTargetColumn').value,
+        days: document.getElementById('entryValue').value,
+        daysPay: document.getElementById('entryDaysPay').value,
+        daysNoPay: document.getElementById('entryDaysNoPay').value,
+        remarks: document.getElementById('entryRemarks').value
+      };
+
+      closeModal('actionModal');
+
+      apiRequest('submitLedgerEntry', payload, 'POST')
+        .then(res => {
+          if (res && res.success) {
+            showToast('Entry saved successfully!', 'success');
+            delete allLeaveCardsCache[payload.personnelId];
+            
+            apiRequest('getPersonnelLeaveCard', { personnelId: payload.personnelId })
+              .then(card => {
+                hideLoading();
+                if (card) {
+                  allLeaveCardsCache[payload.personnelId] = card;
+                  renderLeaveCard(card);
+                }
+              })
+              .catch(() => {
+                hideLoading();
+              });
+          } else {
+            hideLoading();
+            const errMsg = (res && res.message) ? res.message : 'Could not save entry. Check sheet permissions.';
+            showToast('Error: ' + errMsg, 'error');
+          }
+        })
+        .catch(err => {
+          hideLoading();
+          showToast('Submission failed: ' + (err && err.message ? err.message : err), 'error');
+        });
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('active');
+        el.style.display = '';
+      }
+    }
+
+    function showLoading(msg) {
+      const overlay = document.getElementById('loadingOverlay');
+      const textEl = document.getElementById('loadingText');
+      if (textEl && msg) textEl.innerText = msg;
+      if (overlay) overlay.classList.add('active');
+    }
+
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.classList.remove('active');
+    }
+
+    function printLeaveCard() {
+      if (!currentSelectedPersonnelId) {
+        showToast('Please select a personnel member before printing', 'error');
+        return;
+      }
+      window.print();
+    }
+
+    window.onscroll = function () {
+      const topBtn = document.getElementById('btnBackToTop');
+      if (!topBtn) return;
+      if (document.body.scrollTop > 250 || document.documentElement.scrollTop > 250) {
+        topBtn.style.display = 'block';
+      } else {
+        topBtn.style.display = 'none';
+      }
+    };
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleLedgerHistory() {
+      isShowingFullHistory = !isShowingFullHistory;
+      displayLedgerRows();
+    }
+  </script>
+</body>
+</html>
