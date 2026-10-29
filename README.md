@@ -8,19 +8,28 @@ Cleaned and fixed production-ready code for **San Simon Integrated School Person
 
 ```text
 ssis-leave-card/
-├── index.html       # Standalone frontend web app (deploy to Vercel/GitHub)
+├── api/
+│   └── index.js     # Vercel Serverless Gateway (pulls Index.html live from Apps Script)
+├── index.html       # Standalone frontend backup
 ├── Code.gs          # Google Apps Script backend code (paste into Google Sheet)
-├── vercel.json      # Vercel configuration for clean URLs
+├── vercel.json      # Vercel rewrite configuration
 └── README.md        # Setup, deployment & sync documentation
 ```
 
 ---
 
-## ⚡ How The Automatic Sync Works (Apps Script ↔ Vercel)
+## ⚡ How The 100% Automatic Sync Works (Apps Script ↔ Vercel)
 
-> **"When I update in Apps Script, does it automatically update in Vercel?"**
+> **"Can I edit Index.html in Apps Script and have Vercel update automatically WITHOUT touching GitHub?"**
 
-**YES!** Here is how the connection works:
+**YES! That is now enabled.**
+
+With the **Vercel Gateway (`api/index.js`)**:
+1. When a user visits your Vercel URL (e.g., `https://ssis-leave-card.vercel.app/`), Vercel dynamically requests the newest `Index.html` directly from your Google Apps Script Web App (`action=getAppHtml`).
+2. **You only upload to GitHub ONCE.** After uploading `api/index.js` and `vercel.json` to GitHub, you **NEVER** need to touch GitHub again!
+3. Whenever you edit `Index.html` in Google Apps Script, simply publish a new deployment version:
+   * Click **Deploy** > **Manage deployments** > **Edit** > Version: **New version** > **Deploy**.
+4. The instant you click Deploy, **your Vercel site updates immediately!**
 
 1. **Spreadsheet Data Updates (Instant)**:
    - Your Vercel website does **not** store static data. Instead, it makes direct, live API calls (`fetch`) to your Google Apps Script endpoint (`API_ENDPOINT`).
@@ -37,6 +46,41 @@ ssis-leave-card/
 
 3. **Frontend Code Updates (GitHub → Vercel)**:
    - When you push frontend updates (like changes to `index.html`) to your GitHub repository, **Vercel detects the commit and automatically redeploys your site in under 15 seconds.**
+
+---
+
+## ⚙️ Configuration in Google Sheet (`Header` Tab)
+
+In your Google Spreadsheet, open the **`Header`** sheet tab. You can configure any of the following key-value pairs (Column A = Field Name, Column B = Value):
+
+| Column A (Field Name) | Column B (Value Example) | Description |
+| :--- | :--- | :--- |
+| `School Name` | `SAN SIMON INTEGRATED SCHOOL` | Header school banner text |
+| `Logo Direct URL` | `https://drive.google.com/file/d/...` | Direct URL or Google Drive link for the school seal |
+| `Address` | `San Simon, Pampanga` | Printed and header address line |
+| `Contact` | `(045) 123-4567` | Header phone / contact info |
+| `Email` | `sansimon.is@deped.gov.ph` | Header email address |
+| `Admin PIN` | `1234` | Security PIN to unlock the "+ File Leave" and "+ Add Credits" buttons |
+| **`Portal URL`** *(New)* | `https://ssis500470.vercel.app/` | **Dynamic link for the "Back to SSIS Portal" button** *(accepts `Portal URL`, `Portal Link`, or `SSIS Portal URL`)* |
+| **`Portal Name`** *(New)* | `SSIS Portal` | Label text for the button (default: `Back to SSIS Portal`) |
+| **`Portal Logo`** *(New)* | `https://drive.google.com/...` | Custom icon URL for the portal button (optional) |
+
+---
+
+## 📊 Top Dashboard: Leave Balances & Annual Entitlements
+
+The summary dashboard at the top of each personnel leave card now displays both **Cumulative Running Balances** and **Calendar Year (CY) Annual Usable Quotas**:
+
+1. **Cumulative Leave Balances**:
+   - 🏖️ **Vacation Leave (VL)**: Current cumulative balance (earned at 1.250 days/month).
+   - 🩺 **Sick Leave (SL)**: Current cumulative balance (earned at 1.250 days/month).
+   - ⏳ **Service Credits (COC/CTO)**: Accumulated compensatory service credits (DepEd SO).
+2. **Annual Usable Leave Quotas (Calendar Year)**:
+   - 🌿 **Forced Leave (FL)**: 5.000 days/year (with automatic CSC exemption detection if VL < 10 days).
+   - ⭐ **Special Privilege Leave (SPL)**: 3.000 days/year.
+   - 🧘 **Wellness Leave (WL)**: 5.000 days/year (Non-Teaching & Teaching).
+3. **Smart Historical Sync**:
+   - When switching the "Calendar Year" dropdown, the cards show the closing balance as of that specific calendar year; on the current year, it displays the live running balance.
 
 ---
 
